@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCounters();
   initContactForm();
   initNotifyForm();
+  initNewsletterForm();
   setActiveNavLink();
 });
 
@@ -152,25 +153,60 @@ function animateCounter(el) {
   requestAnimationFrame(update);
 }
 
+/* ── Formspree endpoint ──────────────────────────────────── */
+const FORMSPREE = 'https://formspree.io/f/mdarlgza';
+
 /* ── Contact Form ────────────────────────────────────────── */
 function initContactForm() {
   const form = document.getElementById('contact-form');
   if (!form) return;
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validateForm(form)) return;
 
     const btn = form.querySelector('[type="submit"]');
+    const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = 'Sending…';
+    btn.textContent = 'Sending\u2026';
 
-    setTimeout(() => {
-      form.style.display = 'none';
-      const success = document.getElementById('form-success');
-      if (success) success.style.display = 'block';
-    }, 1200);
+    try {
+      const res = await fetch(FORMSPREE, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (res.ok) {
+        form.style.display = 'none';
+        const success = document.getElementById('form-success');
+        if (success) success.style.display = 'block';
+      } else {
+        const data = await res.json();
+        const msg = data.errors
+          ? data.errors.map(err => err.message).join(', ')
+          : 'Something went wrong. Please try again.';
+        showFormError(form, msg);
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    } catch (_) {
+      showFormError(form, 'Network error \u2014 please check your connection and try again.');
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
   });
+}
+
+function showFormError(form, msg) {
+  let err = form.querySelector('.form-error-msg');
+  if (!err) {
+    err = document.createElement('p');
+    err.className = 'form-error-msg';
+    err.style.cssText = 'color:#EF4444;font-size:0.875rem;margin-top:0.75rem;text-align:center;';
+    form.appendChild(err);
+  }
+  err.textContent = msg;
 }
 
 function validateForm(form) {
@@ -195,20 +231,90 @@ function initNotifyForm() {
   const form = document.getElementById('notify-form');
   if (!form) return;
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = form.querySelector('[type="submit"]');
+    const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = 'Subscribed ✓';
-    btn.style.background = 'var(--green)';
-    btn.style.borderColor = 'var(--green)';
-    form.reset();
-    setTimeout(() => {
+    btn.textContent = 'Sending\u2026';
+
+    try {
+      const res = await fetch(FORMSPREE, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (res.ok) {
+        btn.textContent = 'Subscribed \u2713';
+        btn.style.background = 'var(--green)';
+        btn.style.borderColor = 'var(--green)';
+        form.reset();
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = originalText;
+          btn.style.background = '';
+          btn.style.borderColor = '';
+        }, 4000);
+      } else {
+        btn.textContent = 'Try again';
+        btn.disabled = false;
+        setTimeout(() => { btn.textContent = originalText; }, 3000);
+      }
+    } catch (_) {
+      btn.textContent = 'Error \u2014 retry';
       btn.disabled = false;
-      btn.textContent = 'Notify Me';
-      btn.style.background = '';
-      btn.style.borderColor = '';
-    }, 4000);
+      setTimeout(() => { btn.textContent = originalText; }, 3000);
+    }
+  });
+}
+
+/* ── Newsletter Form (Blog) ──────────────────────────────── */
+function initNewsletterForm() {
+  const form = document.getElementById('newsletter-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn  = form.querySelector('[type="submit"]');
+    const input = form.querySelector('[type="email"]');
+    const originalText = btn.textContent;
+
+    if (!input || !input.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
+      input.style.borderColor = '#EF4444';
+      setTimeout(() => { input.style.borderColor = ''; }, 2000);
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Subscribing\u2026';
+
+    try {
+      const res = await fetch(FORMSPREE, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (res.ok) {
+        btn.textContent = 'Subscribed \u2713';
+        btn.style.background = 'var(--green)';
+        form.reset();
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = originalText;
+          btn.style.background = '';
+        }, 4000);
+      } else {
+        btn.textContent = 'Try again';
+        btn.disabled = false;
+        setTimeout(() => { btn.textContent = originalText; }, 3000);
+      }
+    } catch (_) {
+      btn.textContent = 'Error \u2014 retry';
+      btn.disabled = false;
+      setTimeout(() => { btn.textContent = originalText; }, 3000);
+    }
   });
 }
 
