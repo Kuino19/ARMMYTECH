@@ -1,5 +1,5 @@
-/* ============================================================
-   ARMMY TECH LTD — Main JavaScript
+﻿/* ============================================================
+   Armstrong &amp; Ifedayo Tech LTD — Main JavaScript
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
