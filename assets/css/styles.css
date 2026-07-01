@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    Armstrong &amp; Ifedayo Tech LTD — Global Design System
    ============================================================ */
 
@@ -1226,6 +1226,7 @@ p { line-height: 1.75; color: var(--gray-600); }
   color: var(--white);
   flex-shrink: 0;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  object-fit: cover;
 }
 .founder-meta h3 {
   color: var(--white);
