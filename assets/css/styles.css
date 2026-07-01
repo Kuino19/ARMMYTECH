@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    Armstrong &amp; Ifedayo Tech LTD — Global Design System
    ============================================================ */
 
@@ -1900,6 +1900,8 @@ p { line-height: 1.75; color: var(--gray-600); }
   .blog-grid   { grid-template-columns: 1fr; }
 
   /* Founder cards */
+  .founder-card { flex-direction: column; text-align: center; }
+  .founder-avatar { margin-inline: auto; }
 
   /* Section header */
   .section-header { text-align: left; }
