@@ -1,4 +1,4 @@
 ﻿User-agent: *
 Allow: /
 
-Sitemap: https://www.armmytech.com/sitemap.xml
+Sitemap: https://www.goanitech.com/sitemap.xml
